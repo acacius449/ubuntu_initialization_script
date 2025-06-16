@@ -1,2 +1,5 @@
 # macOS system files
 .DS_Store
+
+# 环境变量文件 - 包含敏感信息，请勿提交
+.env

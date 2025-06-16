@@ -6,6 +6,26 @@
 
 set -e # 遇到错误立即退出
 
+# 加载环境变量
+if [ -f ".env" ]; then
+    echo "加载环境变量配置..."
+    source .env
+fi
+
+# 检查必需的环境变量
+if [ -z "$NACOS_TOKEN_SECRET_KEY" ] || [ -z "$NACOS_SERVER_IDENTITY_VALUE" ]; then
+    echo "❌ 错误：缺少必需的环境变量"
+    echo ""
+    echo "请在项目根目录创建 .env 文件，包含以下内容："
+    echo ""
+    echo "NACOS_TOKEN_SECRET_KEY=你的 token 密钥"
+    echo "NACOS_SERVER_IDENTITY_VALUE=你的 serverIdentity 值"
+    echo ""
+    exit 1
+fi
+
+echo "✅ 环境变量检查通过"
+
 echo "开始安装 Nacos..."
 
 # 基本配置
@@ -101,9 +121,9 @@ fi
 # 定义需要配置的参数
 AUTH_CONFIGS=(
     "nacos.core.auth.enabled=true"
-    "nacos.core.auth.plugin.nacos.token.secret.key=7gaiNU8EuQXPr19PJ9GTdmswJY87/+NPAdbQcFnnwqY="
+    "nacos.core.auth.plugin.nacos.token.secret.key=$NACOS_TOKEN_SECRET_KEY"
     "nacos.core.auth.server.identity.key=serverIdentity"
-    "nacos.core.auth.server.identity.value=BjuvQanL2DQGiARYBgatOsjpAupAGzgIDowjqlSgRis="
+    "nacos.core.auth.server.identity.value=$NACOS_SERVER_IDENTITY_VALUE"
 )
 
 # 函数：更新或添加配置项

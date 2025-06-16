@@ -6,6 +6,28 @@
 
 set -e # 遇到错误立即退出
 
+# 加载环境变量
+if [ -f ".env" ]; then
+    echo "加载环境变量配置..."
+    source .env
+fi
+
+# 检查必需的环境变量
+if [ -z "$MYSQL_ROOT_PASSWORD" ] || [ -z "$MYSQL_ADMIN_PASSWORD" ] || [ -z "$MYSQL_ADMIN_USER" ]; then
+    echo "❌ 错误：缺少必需的环境变量"
+    echo ""
+    echo "请在项目根目录创建 .env 文件，包含以下内容："
+    echo ""
+    echo "MYSQL_ROOT_PASSWORD=你的 root 密码"
+    echo "MYSQL_ADMIN_USER=你的管理员用户名"
+    echo "MYSQL_ADMIN_PASSWORD=你的管理员密码"
+    echo ""
+    echo "注意：请使用强密码，包含大小写字母、数字和特殊字符"
+    exit 1
+fi
+
+echo "✅ 环境变量检查通过"
+
 echo "开始安装 MySQL 8..."
 
 # 检查 MySQL 是否已安装
@@ -117,11 +139,11 @@ echo "   sudo mysql -u root -p"
 echo "   Enter password: -> 此时密码为空，直接回车"
 echo ""
 echo "-- 设置 root 用户高强度密码"
-echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'kM@onc@E!37N';"
+echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$MYSQL_ROOT_PASSWORD';"
 echo ""
 echo "-- 创建一个用于远程访问的管理员用户（使用高强度密码）"
-echo "CREATE USER 'admin'@'%' IDENTIFIED BY 'Notb_qx8RpAX';"
-echo "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;"
+echo "CREATE USER '$MYSQL_ADMIN_USER'@'%' IDENTIFIED BY '$MYSQL_ADMIN_PASSWORD';"
+echo "GRANT ALL PRIVILEGES ON *.* TO '$MYSQL_ADMIN_USER'@'%' WITH GRANT OPTION;"
 echo ""
 echo "-- 刷新权限"
 echo "FLUSH PRIVILEGES;"
@@ -132,7 +154,7 @@ echo ""
 echo "=========================================="
 echo ""
 echo "🔐 安全配置说明："
-echo "  • Root 用户密码: kM@onc@E!37N (仅本地访问)"
-echo "  • 管理员用户: admin (密码: Notb_qx8RpAX，可远程访问)"
+echo "  • Root 用户密码: $MYSQL_ROOT_PASSWORD (仅本地访问)"
+echo "  • 管理员用户: $MYSQL_ADMIN_USER (密码：$MYSQL_ADMIN_PASSWORD，可远程访问)"
 echo "  • 密码强度要求: 最少 12 位，至少 2 个大写 + 2 个小写 + 2 个数字 + 2 个特殊字符"
 echo ""
