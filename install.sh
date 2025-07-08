@@ -68,6 +68,11 @@ if [ ! -f "$SCRIPT_DIR/scripts/nginx.sh" ]; then
     exit 1
 fi
 
+if [ ! -f "$SCRIPT_DIR/scripts/minio.sh" ]; then
+    echo "错误: scripts/minio.sh 文件不存在"
+    exit 1
+fi
+
 # 为脚本添加执行权限
 chmod +x "$SCRIPT_DIR/scripts/nvm.sh"
 chmod +x "$SCRIPT_DIR/scripts/nodejs.sh"
@@ -76,6 +81,7 @@ chmod +x "$SCRIPT_DIR/scripts/mysql.sh"
 chmod +x "$SCRIPT_DIR/scripts/docker.sh"
 chmod +x "$SCRIPT_DIR/scripts/nginx.sh"
 chmod +x "$SCRIPT_DIR/scripts/nacos.sh"
+chmod +x "$SCRIPT_DIR/scripts/minio.sh"
 
 echo "第一步: 安装和配置 nvm"
 echo "------------------------------------------------------"
@@ -112,6 +118,11 @@ echo "------------------------------------------------------"
 bash "$SCRIPT_DIR/scripts/nginx.sh"
 
 echo ""
+echo "第八步: 安装 MinIO"
+echo "------------------------------------------------------"
+bash "$SCRIPT_DIR/scripts/minio.sh"
+
+echo ""
 echo "======================================================"
 echo "🎉 安装完成！开发环境已成功配置"
 echo "======================================================"
@@ -127,5 +138,6 @@ echo "  • MySQL 8.0 数据库"
 echo "  • Docker CE + Docker Compose"
 echo "  • Nacos 2.5.1 单机模式 (端口: 8848)"
 echo "  • Nginx 1.27.5 (端口: 80/443)"
+echo "  • MinIO 对象存储 (端口: 9000/9001)"
 echo ""
 echo "======================================================"

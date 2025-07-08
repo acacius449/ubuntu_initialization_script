@@ -30,6 +30,7 @@
 ### 服务组件
 - **Nacos 2.5.1** - 服务注册发现和配置管理 (端口: 8848)
 - **Nginx 1.27.5** - Web 服务器和反向代理 (端口: 80/443)
+- **MinIO** - 对象存储服务 (API端口: 9000, 控制台端口: 9001)
 
 ## 🚀 快速开始
 
@@ -62,11 +63,13 @@ ubuntu-initialization-script/
 │   ├── mysql.sh           # MySQL 安装脚本
 │   ├── docker.sh          # Docker 安装脚本
 │   ├── nacos.sh           # Nacos 安装脚本
-│   └── nginx.sh           # Nginx 安装脚本
+│   ├── nginx.sh           # Nginx 安装脚本
+│   └── minio.sh           # MinIO 安装脚本
 └── packages/              # 安装包存储目录
     ├── nacos-server-2.5.1.tar.gz
     ├── nginx-1.27.5.tar.gz
     ├── nvm-0.40.3.tar.gz
+    ├── minio_*.deb
     ├── docker-ce_*.deb
     ├── docker-ce-cli_*.deb
     ├── docker-compose-plugin_*.deb
@@ -86,6 +89,7 @@ ubuntu-initialization-script/
 6. **Docker 安装** - 安装 Docker CE 和相关工具
 7. **Nacos 安装** - 部署 Nacos 服务注册中心
 8. **Nginx 安装** - 编译安装 Nginx Web 服务器
+9. **MinIO 安装** - 部署 MinIO 对象存储服务
 
 ## ⚙️ 配置说明
 
@@ -107,6 +111,12 @@ ubuntu-initialization-script/
 - 自动启动 Docker 服务
 - 包含 Docker Compose 插件
 - 包含 Docker Buildx 插件
+
+### MinIO 配置
+- API 端口: 9000
+- Web 控制台端口: 9001
+- 默认用户名/密码: admin/yUzEBme.ta-7
+- 数据目录: /var/lib/minio/data
 
 ## 🔍 验证安装
 
@@ -132,6 +142,9 @@ sudo /usr/local/nginx/sbin/nginx -t
 
 # 访问 Nacos (在浏览器中打开)
 # http://your-server-ip:8848/nacos
+
+# 访问 MinIO 控制台 (在浏览器中打开)
+# http://your-server-ip:9001
 ```
 
 ## 🛠️ 故障排除

@@ -6,17 +6,26 @@
 
 set -e # 遇到错误立即退出
 
+# 获取脚本所在目录的父目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+
 # 加载环境变量
-if [ -f ".env" ]; then
+ENV_FILE="$PROJECT_DIR/.env"
+if [ -f "$ENV_FILE" ]; then
     echo "加载环境变量配置..."
-    source .env
+    source "$ENV_FILE"
+else
+    echo "❌ 错误: .env 文件不存在: $ENV_FILE"
+    echo "请确保项目根目录下存在 .env 文件，并包含必需的环境变量"
+    exit 1
 fi
 
 # 检查必需的环境变量
 if [ -z "$NACOS_TOKEN_SECRET_KEY" ] || [ -z "$NACOS_SERVER_IDENTITY_VALUE" ]; then
     echo "❌ 错误：缺少必需的环境变量"
     echo ""
-    echo "请在项目根目录创建 .env 文件，包含以下内容："
+    echo "请在项目根目录的 .env 文件中，包含以下内容："
     echo ""
     echo "NACOS_TOKEN_SECRET_KEY=你的 token 密钥"
     echo "NACOS_SERVER_IDENTITY_VALUE=你的 serverIdentity 值"
@@ -36,10 +45,6 @@ NACOS_GROUP="nacos"
 NACOS_HOME="/usr/local/nacos"
 
 echo "Nacos 安装目录: $NACOS_HOME"
-
-# 获取脚本所在目录的父目录
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 # 自动检测 Nacos 版本（从文件名读取）
 NACOS_PACKAGE=$(find "$PROJECT_DIR/packages" -name "nacos-server-*.tar.gz" | head -1)
