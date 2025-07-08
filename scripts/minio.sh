@@ -42,7 +42,7 @@ echo "✅ 环境变量检查通过"
 # 检查 MinIO 是否已安装
 if command -v minio &>/dev/null; then
     MINIO_VERSION=$(minio --version 2>/dev/null | head -n 1)
-    echo "⚠️ MinIO 已安装: $MINIO_VERSION"
+    echo "⚠️  MinIO 已安装: $MINIO_VERSION"
 
     # 检查服务状态
     if systemctl is-active --quiet minio; then
@@ -53,9 +53,16 @@ if command -v minio &>/dev/null; then
         echo "MinIO 已安装但服务未运行，将重新配置..."
     fi
 elif dpkg -l | grep -q "minio"; then
-    echo "⚠️ 检测到 MinIO 包已安装"
-    echo "跳过 MinIO 安装步骤"
-    exit 0
+    echo "⚠️  检测到 MinIO 包已安装"
+    
+    # 检查服务状态
+    if systemctl is-active --quiet minio; then
+        echo "MinIO 服务正在运行"
+        echo "跳过 MinIO 安装步骤"
+        exit 0
+    else
+        echo "MinIO 已安装但服务未运行，将重新配置..."
+    fi
 else
     echo "未检测到 MinIO，开始安装..."
 fi
@@ -75,12 +82,24 @@ MINIO_PACKAGE=$(find "$PACKAGES_DIR" -name "minio_*.deb" | head -1)
 if [ -z "$MINIO_PACKAGE" ]; then
     echo "❌ 错误: 在 $PACKAGES_DIR 目录下未找到 minio_*.deb 文件"
     echo "请确保 packages 目录包含 MinIO deb 包"
+    echo "您可以从 https://min.io/download 下载官方 Linux .deb 安装包"
+    echo "文件名应该类似于: minio_20230101.0.0_amd64.deb"
     exit 1
 fi
 
 # 从文件名提取版本号
 MINIO_VERSION=$(basename "$MINIO_PACKAGE" | sed 's/minio_\(.*\)_amd64\.deb/\1/')
 echo "✅ 检测到 MinIO 版本: $MINIO_VERSION"
+
+# 检查deb包是否有效
+echo "正在验证 MinIO 安装包有效性..."
+if ! dpkg-deb -I "$MINIO_PACKAGE" &>/dev/null; then
+    echo "❌ 错误: $MINIO_PACKAGE 不是有效的 Debian 格式包"
+    echo "请确保下载了正确的 MinIO deb 包"
+    echo "您可以从 https://min.io/download 下载官方 deb 包"
+    exit 1
+fi
+echo "✅ MinIO 安装包验证通过"
 
 # 使用 dpkg 安装 MinIO deb 包
 echo "正在从 deb 包安装 MinIO..."
@@ -258,11 +277,13 @@ echo "  停止服务: sudo systemctl stop minio"
 echo "  重启服务: sudo systemctl restart minio"
 echo "  查看日志: sudo journalctl -u minio -f"
 echo ""
-echo "⚠️ 安全提醒："
+echo "⚠️  安全提醒："
 echo "  • 请确保 .env 文件中的凭据安全"
 echo "  • 修改方法: 编辑 .env 文件后重新运行此脚本，或直接编辑 $MINIO_CONFIG_DIR/minio.env 文件后重启服务"
 echo ""
 echo "📦 packages 目录要求："
 echo "  • minio_<version>_amd64.deb"
 echo "  • 可从 https://min.io/download 下载"
+echo "  • 确保下载的是官方 Linux .deb 安装包"
+echo "  • 下载后请验证文件完整性"
 echo "" 
